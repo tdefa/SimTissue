@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: simtissue
+Version: 0.0.1
+Summary: simulation of tissue
+Author: Thomas Defard
+Author-email: thomas.defard@mines-paristech.fr
+Classifier: Programming Language :: Python :: 3.8
+Description-Content-Type: text/markdown
