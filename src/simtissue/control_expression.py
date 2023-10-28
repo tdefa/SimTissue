@@ -120,8 +120,8 @@ def filter_simulation(spots_position,
         if index_spot not in set_index_to_remove:
             list_spots_too_take.append(index_spot)
             distance_index_spots = distance[index_spot].toarray()
-
-            index_to_remove = np.nonzero(np.logical_and(distance_index_spots < max_dist, distance_index_spots != 0))[1]
+            index_to_remove = np.nonzero(np.logical_and(distance_index_spots < max_dist,
+                                                        distance_index_spots != 0))[1]
             set_index_to_remove.update(set(list(index_to_remove)))
 
     return spots_position[list_spots_too_take]
@@ -160,7 +160,6 @@ def sim_spots_from_ref_anndata(
         # print(cell)
         ## get the expression vector
         expression_vector = count_matrix[cell_index] * scaling_factor
-        simulated_expression_vector = []
         final_expression_vector = np.zeros(expression_vector.shape)
         list_gene = []
         list_coord = []
@@ -205,22 +204,16 @@ def sim_spots_from_ref_anndata(
             csv_list_z += list(np.array(list_list_coord[cell_index])[:, 0])
             csv_list_y += list(np.array(list_list_coord[cell_index])[:, 1])
             csv_list_x += list(np.array(list_list_coord[cell_index])[:, 2])
-
             csv_list_gene += list_list_gene[cell_index]
-
             csv_list_cell += [list_index_cell[cell_index]] * len(list_list_gene[cell_index])
-
             csv_list_cell_type += [list_cell_type[cell_index]] * len(list_list_gene[cell_index])
-
     df_spots = pd.DataFrame({"z": csv_list_z,
                              "y": csv_list_y,
                              "x": csv_list_x,
                              "gene": csv_list_gene,
                              "cell": csv_list_cell,
                              'cell_type': csv_list_cell_type})
-
     anndata.uns["df_spots"] = df_spots
-
     return anndata, df_spots
 
 

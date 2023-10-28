@@ -85,8 +85,10 @@ def generate_dico_coord_map(cyto_path = "/home/tom/Bureau/phd/data3105_simulatio
     return full_name_list
 
 
-def generate_dico_centroid(path_to_mask):
-    seg_mask = tifffile.imread(path_to_mask)
+def generate_dico_centroid(seg_mask):
+    from skimage.measure import regionprops
+
+
     dico_centroid = {}
     props = regionprops(seg_mask)
     for pp in props:
@@ -101,13 +103,15 @@ def generate_dico_centroid(path_to_mask):
 
 
 
+if __name__ == "__main__":
+
+    path_nuclei_remove20 = '/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei_irregular/'
+    path_save_dico_centroid = "/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/dico_centroid_irregular/"
+    for nuc_path in Path(path_nuclei_remove20).rglob('*.npy'):
+        nuc_img = np.load(nuc_path)
+        dico_centroid = generate_dico_centroid(nuc_img.astype(int))
+
+        np.save(Path(path_save_dico_centroid) / nuc_path.name, dico_centroid)
 
 
 
-
-
-
-
-
-
-############# save and load anndata object in h5ad

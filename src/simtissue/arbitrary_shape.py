@@ -1,5 +1,7 @@
 
 
+#%%
+from tqdm import tqdm
 
 
 import time
@@ -138,7 +140,7 @@ def generate_regular_mask(shape = [54, 1000, 1100],
     mask_cyto_bis = np.zeros(shape)
     mask_nuclei_bis = np.zeros(shape)
     m, n, d = shape[1], shape[2], cube_square_size
-    arr = np.empty((m, n), dtype=np.int)
+    arr = np.empty((m, n), dtype=int)
     arr_view = arr.reshape(m // d, d, n // d, d)
     vals = np.arange(m // d * n // d).reshape(m // d, 1, n // d, 1)
     arr_view[:] = vals
@@ -170,11 +172,19 @@ def generate_regular_mask(shape = [54, 1000, 1100],
 
 
 
-def generate_ellipse_for_regular_mask(masks,
+def generate_ellipse_for_regular_mask_buggy(masks,
                                      nuc,
                                      rad_min=0.5,
                                      rad_max=2,
-                                     list_cab = None):
+                                     list_cab = None,
+                                      random_nuc_pos = False,
+                                      random_nuc_range = {'min_x': -25,
+                                                          'max_x':  25,
+                                                          'min_y' : -25,
+                                                          'max_y': 25,
+                                                            'min_z':0 ,
+                                                            'max_z': 0}):
+
     """
     elipse for grid
     :param masks: 3D array
@@ -191,6 +201,13 @@ def generate_ellipse_for_regular_mask(masks,
         # y values of interest, as a "column" array
         list_cordo = list(zip(*np.nonzero((masks == nuc).astype(int))))
         z0, y0, x0  = np.mean(list_cordo, axis=0)
+        if random_nuc_pos:
+            if random_nuc_range['max_z'] - random_nuc_range['min_z'] > 0:
+                z0 = z0 + random.uniform(random_nuc_range['min_z'], random_nuc_range['max_z'])
+            if random_nuc_range['max_y'] - random_nuc_range['min_y'] > 0:
+                y0 = y0 + random.uniform(random_nuc_range['min_y'], random_nuc_range['max_y'])
+            if random_nuc_range['max_x'] - random_nuc_range['min_x'] > 0:
+                x0 = x0 + random.uniform(random_nuc_range['min_x'], random_nuc_range['max_x'])
         c,  b, a = (np.max(list_cordo, axis=0) - np.min(list_cordo, axis=0))
         if list_cab is None:
             c = c * random.uniform(rad_min, rad_max)
@@ -206,8 +223,15 @@ def generate_ellipse_for_regular_mask(masks,
         y = np.linspace(0, masks.shape[2], masks.shape[2])[None, None, :]
         # y values of interest, as a "column" array
         list_cordo = list(zip(*np.nonzero((masks == nuc).astype(int))))
-        z0, x0, y0 = np.mean(list_cordo, axis=0)
         c, a, b = (np.max(list_cordo, axis=0) - np.min(list_cordo, axis=0))
+        z0, y0, x0  = np.mean(list_cordo, axis=0)
+        if random_nuc_pos:
+            if random_nuc_range['max_z'] - random_nuc_range['min_z'] > 0:
+                z0 = z0 + random.randrange(random_nuc_range['min_z'], random_nuc_range['max_z'])
+            if random_nuc_range['max_y'] - random_nuc_range['min_y'] > 0:
+                y0 = y0 + random.randrange(random_nuc_range['min_y'], random_nuc_range['max_y'])
+            if random_nuc_range['max_x'] - random_nuc_range['min_x'] > 0:
+                x0 = x0 + random.randrange(random_nuc_range['min_x'], random_nuc_range['max_x'])
         if list_cab is None:
             a = a * random.uniform(rad_min, rad_max)
             b = b * random.uniform(rad_min, rad_max)
@@ -216,12 +240,88 @@ def generate_ellipse_for_regular_mask(masks,
             b = b * list_cab[2]
         ellipse = ((x - x0) / a) ** 2 + ((y - y0) / b) ** 2 <= 1  # print((nuc, random_speed))
     else:
-        raise(Exception("Only implemented for 3D, for 2D use add a single z stack as [z,y,x]"))
+        raise(Exception("Only implemented for 3D, for 2D  add a single z stack as [z,y,x]"))
     ellipse = ellipse * nuc
     return ellipse, c, a , b
 
 
 
+
+def generate_ellipse_for_regular_mask(masks,
+                     nuc,
+                     rad_min=0.5,
+                     rad_max=2,
+                     list_cab = None,
+                                      random_nuc_pos=False,
+                                      random_nuc_range={'min_x': -25,
+                                                        'max_x': 25,
+                                                        'min_y': -25,
+                                                        'max_y': 25,
+                                                        'min_z': 0,
+                                                        'max_z': 0}
+                                      ):
+    """
+    elipse for grid
+    :param masks:
+    :param nuc:
+    :param rad_min:
+    :param rad_max:
+    :param list_cab:
+    :return:
+    """
+    if masks.ndim == 3 and len(masks) > 1:
+        z = np.linspace(0, masks.shape[0], masks.shape[0])[:, None, None]
+        x = np.linspace(0, masks.shape[1], masks.shape[1])[None, :, None]  # x values of interest
+        y = np.linspace(0, masks.shape[2], masks.shape[2])[None, None, :]
+        # y values of interest, as a "column" array
+        list_cordo = list(zip(*np.nonzero((masks == nuc).astype(int))))
+        z0, x0, y0 = np.mean(list_cordo, axis=0)
+        c, a, b = (np.max(list_cordo, axis=0) - np.min(list_cordo, axis=0))
+        if random_nuc_pos:
+            if random_nuc_range['max_z'] - random_nuc_range['min_z'] > 0:
+                z0 = z0 + round(random.uniform(random_nuc_range['min_z'], random_nuc_range['max_z']))
+            if random_nuc_range['max_y'] - random_nuc_range['min_y'] > 0:
+                y0 = y0 + round(random.uniform(random_nuc_range['min_y'], random_nuc_range['max_y']))
+            if random_nuc_range['max_x'] - random_nuc_range['min_x'] > 0:
+                x0 = x0 + round(random.uniform(random_nuc_range['min_x'], random_nuc_range['max_x']))
+        if list_cab is None:
+            c = c * random.uniform(rad_min, rad_max)
+            a = a * random.uniform(rad_min, rad_max)
+            b = b * random.uniform(rad_min, rad_max)
+        else:
+            c = c * list_cab[0]
+            a = a * list_cab[1]
+            b = b * list_cab[2]
+
+        ellipse = ((z - z0) / c) ** 2 + ((x - x0) / a) ** 2 + ((y - y0) / b) ** 2 <= 1  # print((nuc, random_speed))
+    elif masks.ndim == 3 and len(masks)==1:
+        x = np.linspace(0, masks.shape[1], masks.shape[1])[None, :, None]  # x values of interest
+        y = np.linspace(0, masks.shape[2], masks.shape[2])[None, None, :]
+        # y values of interest, as a "column" array
+        list_cordo = list(zip(*np.nonzero((masks == nuc).astype(int))))
+        z0, x0, y0 = np.mean(list_cordo, axis=0)
+        if random_nuc_pos:
+            if random_nuc_range['max_z'] - random_nuc_range['min_z'] > 0:
+                z0 = z0 + round(random.uniform(random_nuc_range['min_z'], random_nuc_range['max_z']))
+            if random_nuc_range['max_y'] - random_nuc_range['min_y'] > 0:
+                y0 = y0 + round(random.uniform(random_nuc_range['min_y'], random_nuc_range['max_y']))
+            if random_nuc_range['max_x'] - random_nuc_range['min_x'] > 0:
+                x0 = x0 + round(random.uniform(random_nuc_range['min_x'], random_nuc_range['max_x']))
+        c, a, b = (np.max(list_cordo, axis=0) - np.min(list_cordo, axis=0))
+        if list_cab is None:
+            a = a * random.uniform(rad_min, rad_max)
+            b = b * random.uniform(rad_min, rad_max)
+        else:
+            a = a * list_cab[1]
+            b = b * list_cab[2]
+
+        ellipse = ((x - x0) / a) ** 2 + ((y - y0) / b) ** 2 <= 1  # print((nuc, random_speed))
+
+    else:
+        raise(Exception("Only implemented for 2D"))
+
+    ellipse = ellipse * nuc
+    return ellipse, c, a , b
 
 
 def generate_regular_mask(shape = [54, 1000, 1100],
@@ -238,7 +338,7 @@ def generate_regular_mask(shape = [54, 1000, 1100],
     mask_cyto_bis = np.zeros(shape)
     mask_nuclei_bis = np.zeros(shape)
     m, n, d = shape[1], shape[2], step
-    arr = np.empty((m, n), dtype=np.int)
+    arr = np.empty((m, n), dtype=int)
     arr_view = arr.reshape(m // d, d, n // d, d)
     vals = np.arange(m // d * n // d).reshape(m // d, 1, n // d, 1)
     arr_view[:] = vals
@@ -307,7 +407,7 @@ def elbow_grid():
     mask_cyto = np.zeros(shape)
 
     m, n, d = shape[1], shape[2], step
-    arr = np.empty((m, n), dtype=np.int)
+    arr = np.empty((m, n), dtype=int)
     #arr_view = arr.reshape(m // d, d, n // d, d)
     vals = np.arange(m // d * n // d).reshape(m // d, 1, n // d, 1)
     #arr_view[:] = vals
@@ -355,28 +455,30 @@ def elbow_grid():
 
         mask_nuclei_final[mask_nuclei_bis ==candidate_nuc[rint]] = cell
 
-    import napari
-    viewer = napari.Viewer()
-    viewer.add_image(mask_cyto, name='mask')
-    viewer.add_image(mask_nuclei_final, name='mask')
-
-    viewer.add_labels(mask_cyto.astype(int), color=palette_int)  # , scale=[2, 8, 8]) # palette int from probe
-
 
     return mask_cyto, mask_nuclei_final
 
 
 
 
-def elbow_grid_cube():
+def elbow_grid_cube(    shape = [1, 1800, 1600],
+    step = 100,
+    random_nuc_pos=True,
+    random_nuc_range={'min_x': -25,
+                      'max_x': 25,
+                      'min_y': -25,
+                      'max_y': 25,
+                      'min_z': 0,
+                      'max_z': 0}
+                        ):
 
     ## simulate 2D and 3D grid
-    shape = [1, 1800, 1600]
-    step = 100
+    #shape = [1, 1800, 1600]
+    #step = 100
     mask_cyto = np.zeros(shape)
 
     m, n, d = shape[1], shape[2], step
-    arr = np.empty((m, n), dtype=np.int)
+    arr = np.empty((m, n), dtype=np.int64)
     arr_view = arr.reshape(m // d, d, n // d, d)
     vals = np.arange(m // d * n // d).reshape(m // d, 1, n // d, 1)
     arr_view[:] = vals
@@ -434,9 +536,12 @@ def elbow_grid_cube():
             nuc = nuc,
             rad_min=0.25,
             rad_max=0.25,
-            list_cab=[0.25,0.25,0.25]
+            list_cab=[0.25,0.25,0.25],
+            random_nuc_pos=True,
+            random_nuc_range=random_nuc_range
         )
         mask_nuclei_bis += ellipse_nuc
+    print(np.unique(mask_nuclei_bis))
 
     ## keep randomly one nuclei in every cytoplasm
 
@@ -448,15 +553,17 @@ def elbow_grid_cube():
         print(len(candidate_nuc))
         rint = random.randint(0, len(candidate_nuc)-1)
 
-        mask_nuclei_final[mask_nuclei_bis ==candidate_nuc[rint]] = cell
+        mask_nuclei_final[mask_nuclei_bis == candidate_nuc[rint]] = cell
 
+
+    """
     import napari
-    if False:
-            viewer = napari.Viewer()
-            viewer.add_image(mask_cyto, name='mask')
-            viewer.add_image(mask_nuclei_final, name='mask')
+    viewer = napari.Viewer()
+    viewer.add_image(mask_nuclei_final)
+    viewer.add_image(mask_cyto)
+    """
 
-            viewer.add_labels(mask_cyto.astype(int), color=palette_int)  # , scale=[2, 8, 8]) # palette int from probe
+
 
 
     return mask_cyto, mask_nuclei_final
@@ -472,7 +579,7 @@ def elbow_grid_rectangle():
     mask_cyto = np.zeros(shape)
 
     m, n, d = shape[1], shape[2], step
-    arr = np.empty((m, n), dtype=np.int)
+    arr = np.empty((m, n), dtype=int)
     arr_view = arr.reshape(m // d, d, n // d, d)
     vals = np.arange(m // d * n // d).reshape(m // d, 1, n // d, 1)
     arr_view[:] = vals
@@ -524,7 +631,9 @@ def elbow_grid_rectangle():
             rad_max=0.25,
             list_cab=[0.25,0.25,0.25]
         )
+        print(np.unique(ellipse_nuc))
         mask_nuclei_bis += ellipse_nuc
+
 
     ## keep randomly one nuclei in every cytoplasm
 
@@ -538,13 +647,6 @@ def elbow_grid_rectangle():
 
         mask_nuclei_final[mask_nuclei_bis ==candidate_nuc[rint]] = cell
 
-    import napari
-    if False:
-            viewer = napari.Viewer()
-            viewer.add_image(mask_cyto, name='mask')
-            viewer.add_image(mask_nuclei_final, name='mask')
-
-            viewer.add_labels(mask_cyto.astype(int), color=palette_int)  # , scale=[2, 8, 8]) # palette int from probe
 
 
     return mask_cyto, mask_nuclei_final
@@ -608,6 +710,34 @@ def folder_generate_week_prior(path_cyto = "/media/tom/T7/simulation/exp_same_cy
 
 
 #%%
+
+
+def remove_nuclei(
+        mask_nuclei,
+        percent_to_remove = 0.2,
+        list_nuc_to_keep = None):
+    list_nuc = np.unique(mask_nuclei)
+    if 0 in list_nuc:
+        assert list_nuc[0] == 0
+        list_nuc = list_nuc[1:]
+
+    from random import sample
+
+
+
+    if list_nuc_to_keep is None:
+        nb_nuc_to_keep = int(len(list_nuc) * (1 - percent_to_remove))
+        list_nuc_to_keep = sample(list(list_nuc), nb_nuc_to_keep)
+        assert len(list_nuc_to_keep) == nb_nuc_to_keep
+
+    new_mask_nuclei = np.zeros(mask_nuclei.shape)
+    for nuc in list_nuc_to_keep:
+        new_mask_nuclei[mask_nuclei == nuc] = nuc
+    return new_mask_nuclei
+
+
+
+
 if __name__ == "__main__":
 
     ## simulate 2D and 3D grid
@@ -623,7 +753,7 @@ if __name__ == "__main__":
 
 
     m, n, d = shape[1], shape[2], step
-    arr = np.empty((m, n), dtype=np.int)
+    arr = np.empty((m, n), dtype=int)
     arr_view = arr.reshape(m // d, d, n // d, d)
     vals = np.arange(m // d * n // d).reshape(m // d, 1, n // d, 1)
     arr_view[:] = vals
@@ -681,6 +811,9 @@ if __name__ == "__main__":
         np.save('/media/tom/T7/regular_grid/simu1912/elbow_cube/nuclei/mask_cyto' + str(i),
                 mask_nuclei_final)
     #### 3Delbow_grid_rectangle generation
+    from src.simtissue.plot import plot_contour
+
+    plot_contour(mask_cyto=mask_cyto, mask_nuclei=mask_nuclei_final, figsize=(5, 5))
 
     for i in range(0, 10):
         mask_cyto, mask_nuclei_final = elbow_grid_rectangle()
@@ -691,14 +824,55 @@ if __name__ == "__main__":
                 mask_nuclei_final)
 
 
-    import napari
-    viewer = napari.Viewer()
-    viewer.add_image(mask_cyto, name='mask')
-    viewer.add_image(mask_nuclei_final, name='mask')
+    #### 3Delbow_grid_cube with irregular nuclei position
+    for i in tqdm(range(0, 10)):
+        mask_cyto, mask_nuclei_final = elbow_grid_cube(shape=[1, 1800, 1600],
+                        step=100,
+                        random_nuc_pos=True,
+                        random_nuc_range={'min_x': -25,
+                                          'max_x': 25,
+                                          'min_y': -25,
+                                          'max_y': 25,
+                                          'min_z': 0,
+                                          'max_z': 0}
+                        )
+        np.save('/media/tom/T7/regular_grid/simu1912/elbow_cube/nuclei_irregular/mask_cyto' + str(i),
+                mask_nuclei_final)
+        new_mask_nuclei_final = remove_nuclei(
+            mask_nuclei = mask_nuclei_final,
+            percent_to_remove=0.2,
+        )
+        np.save('/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei_irregular/mask_cyto' + str(i),
+                new_mask_nuclei_final)
 
-    viewer.add_labels(mask_cyto.astype(int), color=palette_int)
+        mask = np.amax(new_mask_nuclei_final, 0)
+        mask = (mask > 0).astype(np.int8)
+        print(mask.shape)
+        import tifffile
+        tifffile.imsave("/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei_irregular_tiff/mask_cyto" + str(i) + '.tif', mask)
 
+    #### 3Delbow_grid_cube with irregular nuclei position with same nuc index
+    for i in tqdm(range(0, 10)):
 
+        irre_mask = np.load("/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/irr_old_version2710/nuclei_irregular/" + 'mask_cyto' + str(i) + ".npy"
+                            )
+
+        mask_nuc_remove = np.load("/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei/" + 'mask_cyto' + str(i) + ".npy"
+                            )
+        list_nuc_to_keep = np.unique(mask_nuc_remove)[1:]
+        new_mask_nuclei_final = remove_nuclei(
+            mask_nuclei = irre_mask,
+            percent_to_remove=None,
+            list_nuc_to_keep = list_nuc_to_keep,
+        )
+        np.save('/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei_irregular/mask_cyto' + str(i),
+                new_mask_nuclei_final)
+
+        mask = np.amax(new_mask_nuclei_final, 0)
+        mask = (mask > 0).astype(np.int8)
+        print(mask.shape)
+        import tifffile
+        tifffile.imsave("/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei_irregular_tiff/mask_cyto" + str(i) + '.tif', mask)
 
     #### weak prior generation
     from scipy import ndimage as ndi
@@ -723,12 +897,7 @@ if __name__ == "__main__":
         else:
             mask_prior[ndi.maximum_filter(mask_cyto == cell, size=kernel_size)] = cell
 
-    import napari
 
-    viewer = napari.Viewer()
-
-    viewer.add_image(mask_cyto, name='mask')
-    viewer.add_image(mask_prior, name='mask_prior')
 
 
     #### elbow cube  generation 3D
