@@ -3,67 +3,69 @@
 
 
 
-import anndata as ad
 from scipy.sparse import csr_matrix
-from .utils import get_dict_coord_map
-import anndata as ad
-
 from scipy import sparse
 
 
-
-import os.path
-import random
-from scipy import ndimage
-import argparse
-import tifffile
-from sklearn.utils.random import sample_without_replacement
-import datetime
-from pathlib import Path
-import sys
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-#import ssam
-import itertools
 from sklearn.neighbors import NearestNeighbors
-from skimage import measure
-
-
-import scanpy
 from sklearn.utils.random import sample_without_replacement
-from sklearn.utils import resample
 import anndata as ad
-
-from scipy import ndimage as ndi
-from simtissue.utils import get_dict_coord_map
+from .utils import get_dict_coord_map
 
 
 
-def create_fix_profile(dico_profile={'typeA': [120, 0],
+def create_fix_profile(dict_profile={'typeA': [120, 0],
                                      'typeB': [0, 10]},
                        cell_type_distribution={'typeA': list(range(0, 110, 2)),
                                                'typeB': list(range(1, 110, 2))}):
+    """
+
+    :param dict_profile: dictionary of the expression profile of each cell type e.g. {'typeA': [120, 0], 'typeB': [0, 10]}
+    :type dict_profile: dict
+    :param cell_type_distribution: dictionary of the cell type distribution e.g. {'typeA': list(range(0, 110, 2)), 'typeB': list(range(1, 110, 2))}
+    :type cell_type_distribution: dict
+    :return:
+        - dict_cell_type_label_rna - {cell_type : {cell_id : expression vector}
+        - dico_cell_index - {cell_id : {type:, rnaseq : expression vector}}
+    """
     dico_cell_type_label_rna = {}  # {cell_type : {cell number : expression vector}
     dico_cell_index = {}  # {cell number : {type:, rnaseq : expression vector}}
     for cell_type in cell_type_distribution:
-        dico_cell_type_label_rna[cell_type] = {cell_id: dico_profile[cell_type] for cell_id in
+        dico_cell_type_label_rna[cell_type] = {cell_id: dict_profile[cell_type] for cell_id in
                                                cell_type_distribution[cell_type]}
         for cell_id in cell_type_distribution[cell_type]:
-            dico_cell_index[cell_id] = {'type': cell_type, "rnaseq": dico_profile[cell_type]}
+            dico_cell_index[cell_id] = {'type': cell_type, "rnaseq": dict_profile[cell_type]}
     return dico_cell_type_label_rna, dico_cell_index
 
 ### simulate spots coordinate
 
 
-def simulate_arbritrary_expression(dico_profile,
-                  cell_type_distribution,
-        genes_list_to_simulate = ['A', 'B'],
-        image_name = "image0"
-        ):
+def simulate_arbritrary_expression(
+        dict_profile : dict,
+        cell_type_distribution : dict,
+        mask_cyto : np.ndarray,
+        genes_list_to_simulate  : list,
+        image_name : str = 'img0' ):
+
+    """
+    simulate the expression of a list of genes in a mask of cytoplasm
+
+    :param dict_profile: dictionary of the expression profile of each cell type e.g. {'typeA': [120, 0], 'typeB': [0, 10]}
+    :type dict_profile: dict
+    :param cell_type_distribution: dictionary of the cell type distribution e.g. {'typeA': list(range(0, 110, 2)), 'typeB': list(range(1, 110, 2))}
+    :type cell_type_distribution: dict
+    :param mask_cyto: cytoplasm mask
+    :type mask_cyto: np.ndarray
+    :param genes_list_to_simulate: list of genes to simulate e.g. ['gene1', 'gene2']
+    :param image_name: name of the image to add in annData
+    :return: anndata object with the simulated expression profile and coordinates
+    :rtype anndata: anndata object
+    """
 
     dico_cell_type_label_rna, dico_cell_index = create_fix_profile(
-        dico_profile=dico_profile,
+        dict_profile=dict_profile,
         cell_type_distribution=cell_type_distribution
                 )
 
@@ -105,9 +107,19 @@ def simulate_arbritrary_expression(dico_profile,
     return anndata
 
 
-def filter_simulation(spots_position,
-                      max_dist=3,
-                      dict_scale={"x": 1, 'y': 1, "z": 1}):
+def filter_simulation(spots_position : list,
+                      max_dist: float = 3,
+                      dict_scale : dict = {"x": 1, 'y': 1, "z": 1}):
+    """
+
+    Merge overlapping spots
+    :param spots_position: list of spots position
+    :type spots_position: list
+    :param max_dist: max distance between spots to merge in the scale of dict_scale
+    :type max_dist: int
+    :param dict_scale:
+    :return: list of spots position with merged spots
+    """
     spots_position_scale = np.array(spots_position) * np.array([dict_scale['z'], dict_scale['y'], dict_scale["x"]])
     # print(len(spots_position_scale))
     nbrs = NearestNeighbors(n_neighbors=np.min([100, len(spots_position)]),
@@ -128,7 +140,6 @@ def filter_simulation(spots_position,
 
 
 def sim_spots_from_ref_anndata(
-
         ref_anndata,
         ind_cyto,
         selected_gene,
@@ -137,8 +148,7 @@ def sim_spots_from_ref_anndata(
         remove_neighbors=True,
         max_dist=0.3,
         dict_scale={"x": 0.103, 'y': 0.103, "z": 0.300},
-
-):
+        ):
     dico_coord_map = get_dict_coord_map(ind_cyto)
     random_indice = sample_without_replacement(len(ref_anndata),
                                                len(dico_coord_map))  # return a list

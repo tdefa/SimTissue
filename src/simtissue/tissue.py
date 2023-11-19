@@ -1,21 +1,15 @@
 
 
 
-from simtissue.arbitrary_shape import  generate_ellipse
 import time
 import random
 from tqdm import tqdm
 from scipy import ndimage as ndi
 from skimage.segmentation import watershed
-from matplotlib import pyplot as plt
-from scipy import sparse
-from pathlib import Path
-import sys
-import tifffile
 import numpy as np
 
 
-
+__all__ = ['simulate_single_cell_mask']
 
 def diffusion(distance_map, image_nuc, nucleus, speed=1):
     """ updade the distance map according to the initial object position and the speed
@@ -30,26 +24,28 @@ def diffusion(distance_map, image_nuc, nucleus, speed=1):
 
 
 
-def simulate_single_cell_mask(mask_nuclei, cyto,
-                              scale=np.array([3, 1.03, 1.03]),
-                              proba_elipse=0,
-                              intervals_speed=[[0.5, 0.8], [1.3, 4]],
-                              rad_ellipse_range=[0.3, 1.5],
+def simulate_single_cell_mask(mask_nuclei : np.ndarray,
+                              cyto: np.ndarray = None,
+                              scale :  np.ndarray = np.array([3, 1.03, 1.03]),
+                              intervals_speed: list[list] = [[0.5, 0.8], [1.3, 4]],
                               median_kernel=7,
                               random_seed = None):
 
 
 
     """
-    apply individual distinction using parametrization
-    :param masks_nuclei:
-    :param cyto:
-    :param scale:
-    :param proba_elipse: probability of generating an elipse
-    :param speed_range:
-    :param rad_ellipse_range:
-    :param median_kernel:
-    :return:
+    generate a single cell mask from a nuclei.  Individual cytoplasms are defined by growing cells from segmented nuclei.
+     Each cell grows at random speed to add irregularity in the cell size.
+    :param masks_nuclei: nuclei segmentation mask
+    :type masks_nuclei: np.ndarray
+    :param cyto: (Optional), cytoplasm segmentation mask to simulate area without cell
+    :type cyto: np.ndarray
+    :param scale :  scale of the image in z,y,x
+    :type scale :  np.ndarray
+    :param speed_range: speed range of the cell growth
+    :type speed_range: list
+    :param median_kernel: median kernel size to smooth the cell mask
+    :return: cell mask
     """
 
     if random_seed is None:
@@ -63,24 +59,11 @@ def simulate_single_cell_mask(mask_nuclei, cyto,
 
         random_speed = np.array([random.uniform
             (*random.choices(intervals_speed, weights=[r[1 ] -r[0] for r in intervals_speed])[0]) * scale[i] for i in range(len(scale))])
-
-        if random.uniform(0, 1) < proba_elipse:
-            ellipse,  c, a , b = generate_ellipse(mask_nuclei, nuc,
-                                                  rad_min=rad_ellipse_range[0],
-                                                  rad_max=rad_ellipse_range[1])
-            ellipse[mask_nuclei == nuc] = 0
-
-            if len(np.unique(masks_nuclei[ellipse > 0])) != 1: ## if > 1 it intersect other nuclei
-                ellipse = np.zeros(mask_nuclei.shape)
-        else:
-            ellipse = np.zeros(mask_nuclei.shape)
-        distance_map = diffusion(distance_map, mask_nuclei + ellipse,
+        distance_map = diffusion(distance_map, mask_nuclei,
                                  nuc, speed=random_speed)
-
-
     labels = watershed(image=distance_map, markers=mask_nuclei, mask=cyto, compactness = 0)
-    labels = ndi.median_filter(labels, size=median_kernel)
-    return labels
+    cell_mask = ndi.median_filter(labels, size=median_kernel)
+    return cell_mask
 
 
 

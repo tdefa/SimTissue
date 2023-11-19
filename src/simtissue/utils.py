@@ -10,10 +10,6 @@ from skimage.measure import regionprops
 from tqdm import tqdm
 
 
-
-
-
-
 def get_dict_coord_map(mask_cell,
                        ):
     dico_coord_map = {}
@@ -87,8 +83,6 @@ def generate_dico_coord_map(cyto_path = "/home/tom/Bureau/phd/data3105_simulatio
 
 def generate_dico_centroid(seg_mask):
     from skimage.measure import regionprops
-
-
     dico_centroid = {}
     props = regionprops(seg_mask)
     for pp in props:
@@ -98,20 +92,6 @@ def generate_dico_centroid(seg_mask):
             assert len(pp.centroid) == 3
             dico_centroid[pp.label] = [pp.centroid]
     return dico_centroid
-
-
-
-
-
-if __name__ == "__main__":
-
-    path_nuclei_remove20 = '/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/nuclei_irregular/'
-    path_save_dico_centroid = "/media/tom/T7/regular_grid/simu1912/elbow_cube/remove20/dico_centroid_irregular/"
-    for nuc_path in Path(path_nuclei_remove20).rglob('*.npy'):
-        nuc_img = np.load(nuc_path)
-        dico_centroid = generate_dico_centroid(nuc_img.astype(int))
-
-        np.save(Path(path_save_dico_centroid) / nuc_path.name, dico_centroid)
 
 
 

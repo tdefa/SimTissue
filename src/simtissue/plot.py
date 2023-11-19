@@ -1,7 +1,6 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy import ndimage as ndi
 import skimage
 
 
@@ -14,8 +13,13 @@ def plot_contour(mask_cyto=None,
                  linewidth=1):
     fig, ax = plt.subplots(figsize=figsize)
 
-    if mask_cyto is not None:
+    if mask_cyto.ndim == 3:
         mask_cyto = np.amax(mask_cyto, axis=0)
+    if mask_nuclei.ndim == 3:
+        mask_nuclei = np.amax(mask_nuclei, axis=0)
+
+
+    if mask_cyto is not None:
         cyto_list = np.unique(mask_cyto)
         for nuc_id in cyto_list:
             countour = skimage.measure.find_contours(mask_cyto, nuc_id)
@@ -26,15 +30,25 @@ def plot_contour(mask_cyto=None,
                 print("no contour for cell", nuc_id)
 
     if mask_nuclei is not None:
-        mask_nuclei = np.amax(mask_nuclei, axis=0)
-        cyto_list = np.unique(mask_nuclei)
-        for nuc_id in cyto_list:
-            countour = skimage.measure.find_contours(mask_nuclei, nuc_id)
-            try:
-                plt.plot(countour[0][:, 1], countour[0][:, 0], linewidth=linewidth, c='k')
-            except Exception as e:
-                print(e)
-                print("no contour for cell", nuc_id)
+        from scipy import ndimage as ndi
+        contour_nuclei = (mask_nuclei  > 0).astype(int) - ndi.minimum_filter((mask_nuclei > 0).astype(int), size=3)
+        contour_nuclei = np.array(list(zip(*np.nonzero(contour_nuclei))))
+        plt.scatter(contour_nuclei[:, 1], contour_nuclei[:, 0],
+                    s=linewidth,
+                    linewidths = linewidth, c='black')
+
+    ### plot cell border
+    contour_nuclei = [[0, i] for i in
+                      range(mask_nuclei.shape[-1])] + [[i, 0] for i
+                                                  in range(mask_nuclei.shape[-2])] + [[mask_nuclei.shape[-2] - 1, i] for i
+                                                                                 in range(mask_nuclei.shape[-1])] + [
+                         [i, mask_nuclei.shape[-1] - 1] for i
+                         in range(mask_nuclei.shape[-2])]
+    contour_nuclei = np.array(contour_nuclei)
+    plt.scatter(contour_nuclei[:, 1], contour_nuclei[:, 0],
+                linewidths=linewidth,
+                s=linewidth,
+                c='black')
 
     if anndata is not None:
         list_list_gene = list(anndata.obs["genes"])
