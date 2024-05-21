@@ -7,7 +7,7 @@ nbsphinx
 sphinx_rtd_theme
 tifffile
 numpy
-skimage
+scikit-image
 sklearn
 anndata
 scipy
