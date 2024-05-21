@@ -2,7 +2,4 @@ User guide
 ---------------
 
 .. toctree::
-   comseg/dataset
-   comseg/comseg
-   comseg/comSegdict
-   comseg/clustering
+   api/arbitrary_shape.rst
