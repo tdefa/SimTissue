@@ -7,3 +7,10 @@ nbsphinx
 sphinx_rtd_theme
 tifffile
 numpy
+skimage
+sklearn
+anndata
+scipy
+tqdm
+matplotlib
+pathlib
