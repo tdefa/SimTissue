@@ -27,14 +27,14 @@ def diffusion(distance_map, image_nuc, nucleus, speed=1):
 def simulate_single_cell_mask(mask_nuclei : np.ndarray,
                               cyto: np.ndarray = None,
                               scale :  np.ndarray = np.array([3, 1.03, 1.03]),
-                              intervals_speed: list[list] = [[0.5, 0.8], [1.3, 4]],
+                              intervals_speed: list = [[0.5, 0.8], [1.3, 4]],
                               median_kernel=7,
                               random_seed = None):
 
 
 
     """
-    generate a single cell mask from a nuclei.  Individual cytoplasms are defined by growing cells from segmented nuclei.
+    generate a single cell mask from a nuclei. Individual cytoplasms are defined by growing cells from segmented nuclei.
      Each cell grows at random speed to add irregularity in the cell size.
     :param masks_nuclei: nuclei segmentation mask
     :type masks_nuclei: np.ndarray

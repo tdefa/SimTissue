@@ -23,9 +23,8 @@ def get_dict_coord_map(mask_cell,
 
 
 
-
-
 def generate_dico_coord_map(cyto_path = "/home/tom/Bureau/phd/data3105_simulation/210426_repeat3/individual_cytoplasms_22_6_19_53/",
+
                             path_to_save = "/home/tom/Bureau/phd/data3105_simulation/210426_repeat3/dico_coord_map/",
                             extention = 'npy',
                             path_nuclei = '',

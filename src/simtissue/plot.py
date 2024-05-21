@@ -11,11 +11,24 @@ def plot_contour(mask_cyto=None,
                  dico_color={"A": "r", "B": "b"},
                  spot_size=3,
                  linewidth=1):
+    """
+    plot the contour of the mask_cyto and mask_nuclei
+    :param mask_cyto: 3D/2D mask of the cytoplasm
+    :param mask_nuclei: 3D/ 2D mask of the nuclei
+    :param figsize:
+    :param anndata: With  anndata.obs["gene"] containing the gene list  of each cell and anndata.obs["coordinate"] as the coordinate of each gene
+    :param dico_color: dictionnary of color for each gene
+    :param spot_size: size of the spot
+    :param linewidth: width of the cell /nuclei contour
+    :return:
+    """
+
+
     fig, ax = plt.subplots(figsize=figsize)
 
-    if mask_cyto.ndim == 3:
+    if mask_cyto is not None and mask_cyto.ndim == 3:
         mask_cyto = np.amax(mask_cyto, axis=0)
-    if mask_nuclei.ndim == 3:
+    if mask_nuclei is not None and mask_nuclei.ndim == 3:
         mask_nuclei = np.amax(mask_nuclei, axis=0)
 
 
@@ -38,17 +51,17 @@ def plot_contour(mask_cyto=None,
                     linewidths = linewidth, c='black')
 
     ### plot cell border
-    contour_nuclei = [[0, i] for i in
-                      range(mask_nuclei.shape[-1])] + [[i, 0] for i
-                                                  in range(mask_nuclei.shape[-2])] + [[mask_nuclei.shape[-2] - 1, i] for i
-                                                                                 in range(mask_nuclei.shape[-1])] + [
-                         [i, mask_nuclei.shape[-1] - 1] for i
-                         in range(mask_nuclei.shape[-2])]
-    contour_nuclei = np.array(contour_nuclei)
-    plt.scatter(contour_nuclei[:, 1], contour_nuclei[:, 0],
-                linewidths=linewidth,
-                s=linewidth,
-                c='black')
+    #contour_nuclei = [[0, i] for i in
+    #                  range(mask_nuclei.shape[-1])] + [[i, 0] for i
+     #                                             in range(mask_nuclei.shape[-2])] + [[mask_nuclei.shape[-2] - 1, i] for i
+     #                                                                            in range(mask_nuclei.shape[-1])] + [
+      #                   [i, mask_nuclei.shape[-1] - 1] for i
+       #                  in range(mask_nuclei.shape[-2])]
+    #contour_nuclei = np.array(contour_nuclei)
+    #plt.scatter(contour_nuclei[:, 1], contour_nuclei[:, 0],
+     #           linewidths=linewidth,
+      #          s=linewidth,
+       #         c='black')
 
     if anndata is not None:
         list_list_gene = list(anndata.obs["genes"])
