@@ -49,13 +49,7 @@ release = ''
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath('/src/'))
-
-sys.path += ["/src/"]
-
-sys.path += ["./src/"]
 sys.path += ["./src/simtissue"]
-os.path.isdir("./src/")
 ## check if the path is correct
 print(sys.path)
 
