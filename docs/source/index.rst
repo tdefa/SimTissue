@@ -24,7 +24,7 @@ Indices and tables
 * :ref:`search`
 
 
-Installation guide
+Installation
 ==================
 
 ``pip install simtissue``
