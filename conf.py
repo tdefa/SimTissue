@@ -38,6 +38,27 @@ release = ''
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+
+
+
+
+
+autodoc_mock_imports = ["scanpy", "pyarrow", "anndata", "pandas", "tqdm",
+                        "sklearn", "numpy", "networkx", "anndata", "leidenalg", "scikit-image",
+                            "seaborn", "tifffile", "ssam", "scipy", "skimage"]
+
+autodoc_mock_imports += ["anndata","contourpy","cycler","fonttools","h5py","igraph","imageio",
+                         "importlib-metadata","importlib-resources","joblib","kiwisolver","lazy_loader","leidenalg",
+                         "llvmlite","matplotlib","natsort","networkx","numba","numpy","packaging","pandas","patsy",
+                         "Pillow","pyarrow","pynndescent","pyparsing","python-dateutil","python-igraph",
+                         "python-louvain","pytz","PyWavelets","scanpy","scikit-image","scikit-learn",
+                         "scikit-misc","scipy","seaborn","session-info","six","sparse","ssam",
+                         "statsmodels","stdlib-list","tbb","texttable","threadpoolctl","tifffile","tqdm","umap-learn","zipp",]
+
+
+
+
 import sys
 import os
 
@@ -47,7 +68,9 @@ sys.path += ["/src/"]
 
 sys.path += ["./src/"]
 sys.path += ["./src/simtissue"]
-print(sys)
+os.path.isdir("./src/")
+## check if the path is correct
+print(sys.path)
 
 extensions = [
     "nbsphinx",
