@@ -44,6 +44,18 @@ import os
 sys.path.insert(0, os.path.abspath('/../src/'))
 
 
+sys.path.insert(0, os.path.abspath("../../src/"))
+sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'src')))
+sys.path.insert(0, os.path.abspath('../../../'))
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../..'))
+sys.path.insert(0, os.path.abspath('../../src/simtissue'))
+sys.path.insert(0, os.path.abspath('../../src/simtissue/control_expression.py'))
+sys.path.insert(0, os.path.abspath('../../src/simtissue/arbitrary_shape.py'))
+sys.path.insert(0, os.path.abspath('../../src/simtissue/tissue.py'))
+
 extensions = [
     "nbsphinx",
     'sphinx.ext.autodoc',

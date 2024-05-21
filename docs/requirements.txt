@@ -5,12 +5,12 @@ pandas >= 1.5.3
 scanpy >= 1.9.1
 nbsphinx
 sphinx_rtd_theme
-#tifffile
-#numpy
-#scikit-image
-#scikit-learn
-#anndata
-#scipy
-#tqdm
-#matplotlib
-#pathlib
+tifffile
+numpy
+scikit-image
+scikit-learn
+anndata
+scipy
+tqdm
+matplotlib
+pathlib
