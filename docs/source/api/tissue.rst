@@ -2,4 +2,4 @@ Tissue simulation
 ---------------
 
 
-.. autofunction:: simtissue.tissue.py.simulate_single_cell_mask
+.. autofunction:: simtissue.tissue.simulate_single_cell_mask

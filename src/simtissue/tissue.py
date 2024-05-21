@@ -36,6 +36,8 @@ def simulate_single_cell_mask(mask_nuclei : np.ndarray,
     """
     generate a single cell mask from a nuclei. Individual cytoplasms are defined by growing cells from segmented nuclei.
      Each cell grows at random speed to add irregularity in the cell size.
+
+
     :param masks_nuclei: nuclei segmentation mask
     :type masks_nuclei: np.ndarray
     :param cyto: (Optional), cytoplasm segmentation mask to simulate area without cell

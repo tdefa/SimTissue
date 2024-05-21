@@ -13,6 +13,7 @@ def plot_contour(mask_cyto=None,
                  linewidth=1):
     """
     plot the contour of the mask_cyto and mask_nuclei
+
     :param mask_cyto: 3D/2D mask of the cytoplasm
     :param mask_nuclei: 3D/ 2D mask of the nuclei
     :param figsize:

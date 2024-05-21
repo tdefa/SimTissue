@@ -21,6 +21,7 @@ def create_fix_profile(dict_profile={'typeA': [120, 0],
                                                'typeB': list(range(1, 110, 2))}):
     """
     Associate each cell index to a fixed RNA profile
+
     :param dict_profile: dictionary defining the RNA profile of each cell type e.g. {'typeA': [120, 0], 'typeB': [0, 10]}
     :type dict_profile: dict
     :param cell_type_distribution: dictionary of the cell type distribution e.g. {'typeA': list(range(0, 110, 2)), 'typeB': list(range(1, 110, 2))}
@@ -116,6 +117,7 @@ def filter_simulation(spots_position : list,
     """
 
     This function Merge overlapping spots as a single spot
+
     :param spots_position: list of spots position
     :type spots_position: list
     :param max_dist: max distance between spots to merge in the scale of dict_scale
@@ -159,6 +161,7 @@ def sim_spots_from_ref_anndata(
     """
     This function simulate the expression of a list of genes in a mask of cytoplasm.
     It sample each RNA profile from a reference anndata object. The RNA molecule are then sampled from a uniform spatial distribution in each cell
+
     :param ref_anndata: andata object with the reference expression profile to sample
     :type ref_anndata: anndata object
     :param cell_mask:  cell mask

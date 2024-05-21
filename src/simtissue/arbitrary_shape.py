@@ -29,6 +29,7 @@ def checkerboard_mask(shape = [54, 1000, 1100],
                          cube_square_size = 100):
     """
     Generate checkerboard cell mask
+
     :param shape: dimension of the mask [z,y,x]
     :type shape: list[int]
     :param cube_square_size: size of the cube in pixel
@@ -56,6 +57,7 @@ def generate_ellipse(masks: np.ndarray,
                      ):
     """
     generate nuclei as ellipse in the chosen cell
+
     :param masks: cell mask
     :type masks: np.ndarray
     :param cell_id: index of the chosen cell
@@ -115,6 +117,7 @@ def add_sphere_nuclei(mask_cyto : np.ndarray,
 
     """
     add nuclei as sphere in the chosen cell
+
     :param mask_cyto: cell mask
     :type mask_cyto: np.ndarray
     :param cube_square_size:   size of the cube in pixel
@@ -148,6 +151,7 @@ def remove_nuclei(
         list_nuc_to_keep : list = None):
     """
     remove nuclei from the existing nuclei mask to generate cell without nuclei like in smFISH experiment
+
     :param mask_nuclei: nuclei mask
     :type mask_nuclei: np.ndarray
     :param percent_to_remove: percent of nuclei to remove
@@ -180,6 +184,7 @@ def elbow_grid_cube():
     """
     Function to generate grid of elbow shape. the size of the cell mask is hard coded to 1800x1600 and the size square cell is 100 pixel,
     the size of nuclei is 25 pixel
+
     :return: mask_cyto, mask_nuclei
     """
 
