@@ -7,6 +7,3 @@ Welcome to comseg's documentation!
    :caption: Contents
 
 
-   installation_guide
-   userguide
-   comseg
