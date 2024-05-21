@@ -10,8 +10,11 @@ Welcome to SimTissue's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   api
    tutorial
+------------
 
+------------
 
 Indices and tables
 ==================
