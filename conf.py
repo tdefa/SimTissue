@@ -45,6 +45,9 @@ sys.path.insert(0, os.path.abspath('/src/'))
 
 sys.path += ["/src/"]
 
+sys.path += ["./src/"]
+sys.path += ["./src/simtissue"]
+print(sys)
 
 extensions = [
     "nbsphinx",
