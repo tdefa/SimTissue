@@ -1,5 +1,10 @@
-User guide
+API
 ---------------
 
 .. toctree::
-   api/arbitrary_shape.rst
+
+   api/arbitrary_shape
+   api/control_expression
+   api/tissue
+
+

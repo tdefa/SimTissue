@@ -178,7 +178,7 @@ def remove_nuclei(
 
 def elbow_grid_cube():
     """
-    the size of the cell mask is hard coded to 1800x1600 and the size square cell is 100 pixel,
+    Function to generate grid of elbow shape. the size of the cell mask is hard coded to 1800x1600 and the size square cell is 100 pixel,
     the size of nuclei is 25 pixel
     :return: mask_cyto, mask_nuclei
     """
